@@ -1,0 +1,11 @@
+{
+    "disabled": false,
+    "scriptFile": "../build/ActivityFeedWebhook/index.js",
+    "bindings": [{
+        "type": "httpTrigger",
+        "direction": "in",
+        "authLevel": "function",
+        "methods": ["POST"],
+        "route": "webhooks/github"
+    }]
+}
