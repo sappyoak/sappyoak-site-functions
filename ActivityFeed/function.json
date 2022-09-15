@@ -1,0 +1,15 @@
+{
+    "disabled": false,
+    "scriptFile": "../build/ActivityFeed/index.js",
+    "bindings": [{
+        "type": "httpTrigger",
+        "direction": "in",
+        "authLevel": "function",
+        "methods": ["GET"],
+        "route": "feed"
+    }, {
+        "type": "http",
+        "direction": "out",
+        "name": "response"
+    }]
+}
