@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@azure/data-tables": "^13.2.0",
-    "@azure/identity": "^2.1.0"
+    "@azure/identity": "^2.1.0",
+    "@azure/storage-queue": "^12.10.0",
+    "date-fns": "^2.29.3"
   }
 }

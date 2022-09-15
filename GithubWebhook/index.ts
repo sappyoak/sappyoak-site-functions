@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from '@azure/functions'
-import { createHmac, timingSafeEqual, randomUUID } from 'node:crypto'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 
-import { createTableClient } from '../lib/table-storage'
+import { createQueueClient } from '../lib/storage'
 
 const ALLOWED_EVENT_TO_ACTIONS_MAP = {
     deployment: ['created'],
@@ -13,15 +13,12 @@ const ALLOWED_EVENT_TO_ACTIONS_MAP = {
 }
 
 type GithubActivityItem = {
-    action: string,
     actionCreated: string
-    activity: string,
     id: string,
     link: string,
     meta?: {[key: string]: string | number | boolean | undefined }
     repoId: string,
     repoName: string,
-    type: string
 }
 
 const feedTrigger: AzureFunction = async function (context: Context, request: HttpRequest): Promise<void> {
@@ -32,7 +29,7 @@ const feedTrigger: AzureFunction = async function (context: Context, request: Ht
         return
     }
 
-    const tableClient = createTableClient(process.env.RAW_ACTIVITY_TABLE_NAME as string)
+    const queueClient = createQueueClient(process.env.RAW_ACTIVITY_QUEUE_NAME as string)
 
     context.log.info(`Github webhook received a request from ${request.url}`);
 
@@ -48,20 +45,17 @@ const feedTrigger: AzureFunction = async function (context: Context, request: Ht
     }
 
 
+    // @TODO need to actually do error-handling here.  Can utilize queue-storage as a DL queue for dropped activity feed items
     try {
         const entity = {
             partitionKey: 'github-activity',
-            rowKey: randomUUID(),
-            ...createGithubActivityItem(eventName, request.body)
+            type: `${eventName}.${eventName === 'push' || eventName === 'issues' ? eventName : request.body.action}`,
+            data: createGithubActivityItem(eventName, request.body)
         }
 
-        await tableClient.createEntity(entity)
+        await queueClient.sendMessage(JSON.stringify(entity))
     } catch (error) {
-        if (error.odata) {
-            context.log.error(error.odata.message)
-        } else {
-            context.log.error(error.message)
-        }
+        context.log.error(error.message)
     }
 }
 
@@ -69,9 +63,6 @@ export default feedTrigger
 
 function createGithubActivityItem(eventName: string, payload) {
     const result: Partial<GithubActivityItem> = {
-        action: eventName === 'push' ? eventName : payload.action,
-        activity: 'github',
-        type: eventName,
         repoId: payload.repository.id,
         repoName: payload.repository.name
     }
