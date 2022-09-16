@@ -1,6 +1,6 @@
 {
     "disabled": false,
-    "scriptFile": "../build/ActivityFeed/index.js",
+    "scriptFile": "../dist/ActivityFeed/index.js",
     "bindings": [{
         "type": "httpTrigger",
         "direction": "in",

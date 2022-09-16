@@ -1,6 +1,6 @@
 {
     "disabled": false,
-    "scriptFile": "../build/GithubWebhook/index.js",
+    "scriptFile": "../dist/GithubWebhook/index.js",
     "bindings": [{
         "type": "httpTrigger",
         "direction": "in",

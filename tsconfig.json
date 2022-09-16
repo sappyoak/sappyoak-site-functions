@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
-        "target": "ESNext",
+        "target": "es6",
         "module": "commonjs",
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
         "downlevelIteration": true,
         "esModuleInterop": true,
         "resolveJsonModule": true,
-        "outDir": "build"
+        "outDir": "dist"
     }
 }

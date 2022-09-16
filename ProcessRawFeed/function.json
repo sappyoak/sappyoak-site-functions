@@ -1,6 +1,6 @@
 {
     "disabled": false,
-    "scriptFile": "../build/ProcessRawFeed/index.js",
+    "scriptFile": "../dist/ProcessRawFeed/index.js",
     "bindings": [{
         "type": "queueTrigger",
         "direction": "in",

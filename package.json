@@ -4,8 +4,9 @@
   "description": "",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -rf dist",
     "dev": "tsc -w",
-    "prestart": "npm run build",
+    "prestart": "npm run clean && npm run build",
     "start": "func start"
   },
   "repository": {
