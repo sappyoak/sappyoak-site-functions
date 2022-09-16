@@ -1,4 +1,4 @@
-import { AzureFunction, Context, HttpRequest } from '@azure/functions'
+import { AzureFunction, Context, HttpRequest, HttpResponseSimple } from '@azure/functions'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
 import { createQueueClient } from '../lib/storage'
@@ -21,12 +21,15 @@ type GithubActivityItem = {
     repoName: string,
 }
 
-const feedTrigger: AzureFunction = async function (context: Context, request: HttpRequest): Promise<void> {
+const feedTrigger: AzureFunction = async function (context: Context, request: HttpRequest): Promise<HttpResponseSimple> {
     const eventName = request.headers['X-GitHub-Event']
     const validationError = validateRequest(eventName, request, context.executionContext.invocationId)
     if (validationError) {
         context.log.error(validationError)
-        return
+        return {
+            statusCode: 409,
+            body: validationError
+        }
     }
 
     const queueClient = createQueueClient(process.env.RAW_ACTIVITY_QUEUE_NAME as string)
@@ -36,12 +39,14 @@ const feedTrigger: AzureFunction = async function (context: Context, request: Ht
     const allowedActionsForEvent = ALLOWED_EVENT_TO_ACTIONS_MAP[eventName]
     if (allowedActionsForEvent[0] !== '*' && !allowedActionsForEvent.includes(request.body.action)) {
         context.log.info(`Ignoring event: ${eventName} because webhook received an action: ${request.body.action} that is not targeted`)
-        return
+        return {
+            statusCode: 304
+        }
     }
 
     if (request.body.sender.login !== process.env.GITHUB_USERNAME) {
         context.log.verbose(`Received activity item from user: ${request.body.sender.login} who is not ${process.env.GITHUB_USERNAME}`)
-        return
+        return { statusCode: 304 }
     }
 
 
@@ -54,8 +59,15 @@ const feedTrigger: AzureFunction = async function (context: Context, request: Ht
         }
 
         await queueClient.sendMessage(JSON.stringify(entity))
+        return {
+            statusCode: 200
+        }
     } catch (error) {
         context.log.error(error.message)
+        return {
+            statusCode: 400,
+            body: error.message
+        }
     }
 }
 

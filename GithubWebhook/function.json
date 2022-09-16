@@ -4,7 +4,12 @@
     "bindings": [{
         "type": "httpTrigger",
         "direction": "in",
-        "methods": ["POST"],
+        "authLevel": "anonymous",
+        "methods": ["GET", "POST"],
         "route": "webhooks/github"
+    }, {
+        "type": "http",
+        "direction": "out",
+        "name": "$return"
     }]
 }

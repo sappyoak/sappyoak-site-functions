@@ -4,13 +4,13 @@
     "bindings": [{
         "type": "queueTrigger",
         "direction": "in",
-        "queueName": "RAW_ACTIVITY_QUEUE_NAME",
+        "queueName": "%RAW_ACTIVITY_QUEUE_NAME%",
         "connection": "STORAGE_ACCOUNT_KEY"
     }, {
         "type": "signalR",
         "direction": "out",
         "name": "socketMessages",
         "hubName": "activity-feed",
-        "connectionStringSetting": "SIGNAL_R_CONNECTION_STRING"
+        "connectionStringSetting": "%SIGNAL_R_CONNECTION_STRING%"
     }]
 }
